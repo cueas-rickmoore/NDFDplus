@@ -1,0 +1,69 @@
+
+in atmosci/reanalysis/scripts
+
+update_reanalysis_grid_file.py rtma dpt
+update_reanalysis_grid_file.py rtma tmp
+update_reanalysis_grid_file.py rtma pcpn
+update_reanalysis_rhum_grid_file.py rtma
+
+
+in atmosci/ndfd/scripts
+
+update_ndfd_forecast_grid.py pop12
+update_ndfd_forecast_grid.py qpf 
+update_ndfd_forecast_grid.py rhm 
+update_ndfd_forecast_grid.py td 
+update_ndfd_forecast_grid.py temp 
+
+
+in turf/scripts
+
+update_weather_temps_analysis.py -v
+update_weather_temps_forecast.py -v
+update_weather_wetness_analysis.py -v
+update_weather_wetness_forecast.py -v
+
+
+..... build turf threat model files
+
+update_turf_threat_analysis.py anthrac daily 
+update_turf_threat_forecast.py anthrac daily 
+update_turf_threat_analysis.py anthrac average 
+update_turf_threat_forecast.py anthrac average 
+generate_threat_json_files.py anthrac 
+draw_turf_threat_risk_maps.py anthrac daily 
+
+update_turf_threat_analysis.py bpatch daily 
+update_turf_threat_forecast.py bpatch daily 
+update_turf_threat_analysis.py bpatch average 
+update_turf_threat_forecast.py bpatch average 
+generate_threat_json_files.py bpatch 
+draw_turf_threat_risk_maps.py bpatch daily 
+
+update_turf_threat_analysis.py dspot daily 
+update_turf_threat_forecast.py dspot daily 
+update_turf_threat_analysis.py dspot average 
+update_turf_threat_forecast.py dspot average 
+generate_threat_json_files.py dspot 
+draw_turf_threat_risk_maps.py dspot daily 
+
+update_turf_threat_analysis.py pblight daily 
+update_turf_threat_forecast.py pblight daily 
+update_turf_threat_analysis.py pblight average 
+update_turf_threat_forecast.py pblight average 
+generate_threat_json_files.py pblight 
+draw_turf_threat_risk_maps.py pblight daily 
+
+update_turf_hstress_analysis.py 
+update_turf_hstress_forecast.py 
+generate_threat_json_files.py hstress 
+draw_turf_threat_risk_maps.py hstress daily 
+
+
+..... build turf controls files
+
+generate_controls_json_files.py dandelion 
+draw_daily_control_stage_maps.py dandelion 
+
+generate_controls_json_files.py seedhead 
+draw_daily_control_stage_maps.py seedhead 

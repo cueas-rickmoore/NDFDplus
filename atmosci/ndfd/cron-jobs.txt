@@ -1,0 +1,22 @@
+
+# Build tool files for the next season
+00 01 20 12 * /bin/hostname; export PYTHONPATH=/Volumes/projects/venvs/atmosci/atmosci_pkg ; /Volumes/projects/venvs/builds/cron/create_acis_temp_file.py -n -r NE -s acis
+
+# create NDFD monthly files
+00 04 21 * * bin/hostname; export PYTHONPATH=/Volumes/projects/venv2/turf/turf_pkgs; /Volumes/projects/venv2/turf/cron/build_forecast_grid_file.py temp --next -v
+02 04 21 * * bin/hostname; export PYTHONPATH=/Volumes/projects/venv2/turf/turf_pkgs; /Volumes/projects/venv2/turf/cron/build_forecast_grid_file.py td --next -v
+04 04 21 * * bin/hostname; export PYTHONPATH=/Volumes/projects/venv2/turf/turf_pkgs; /Volumes/projects/venv2/turf/cron/build_forecast_grid_file.py rhm --next -v
+
+# NDFD forecast downloads @ 8:00, 11:00, 14:00, 17:00, 20:00
+00 08-22/3 * * * /bin/hostname; export PYTHONPATH=/Volumes/projects/venvs/builds/build_pkgs ; /Volumes/projects/venvs/builds/cron/download_ndfd_temp_gribs.py 
+
+# ACIS HiRes (grid 3) temperatures 10:45/50, 13:45/50, 16:45/50, 19:45/50
+45 10-20/3 * * * /bin/hostname; export PYTHONPATH=/Volumes/projects/venvs/atmosci/atmosci_pkg ; /Volumes/projects/venvs/builds/cron/refresh_acis_temp_grids.py -r NE -s acis --da 10
+50 10-20/3 * * * /bin/hostname; export PYTHONPATH=/Volumes/projects/venvs/atmosci/atmosci_pkg ; /Volumes/projects/venvs/builds/cron/download_acis_temp_grids.py -r NE -s acis
+
+# NDFD temperature added to ACIS grid files @ 11:07, 14:07, 17:07, 20:07
+07 11-21/3 * * * /bin/hostname; export PYTHONPATH=/Volumes/projects/venv2/builds/build_pkgs ; /Volumes/projects/venv2/builds/cron/update_ndfd_forecast_temps.py acis NE -e
+09 11-21/3 * * * . $HOME/rsync-ssh-hack; /Volumes/projects/venv2/builds/cron/sync_acis_temps.py
+10 11-21/3 * * * . $HOME/rsync-ssh-hack; /Volumes/projects/venv2/builds/cron/sync_temp_forecasts.py
+
+

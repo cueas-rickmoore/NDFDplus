@@ -1,0 +1,146 @@
+1c1
+< #! /Volumes/projects/venvs/test/bin/python
+---
+> #! /usr/bin/env python
+25a26,79
+> def updateForecast(mint_temps, max_temps, fcast_start, target_year, source, region):
+>     # filter annoying numpy warnings
+>     warnings.filterwarnings('ignore',"All-NaN axis encountered")
+>     warnings.filterwarnings('ignore',"All-NaN slice encountered")
+>     warnings.filterwarnings('ignore',"invalid value encountered in greater")
+>     warnings.filterwarnings('ignore',"invalid value encountered in less")
+>     warnings.filterwarnings('ignore',"Mean of empty slice")
+>     # MUST ALSO TURN OFF WARNING FILTERS AT END OF FUNCTION !!!!!
+> 
+>     manager = factory.getSourceFileManager(source, target_year, region,
+>                                            'temps', mode='a')
+>     print '\nsaving forecast to', manager.filepath
+> 
+>     first_date = None # first date in forecast for target year
+>     last_date = None # last date in forecast for target year
+>     # pop first item from each of the forecast lists
+>     mint_date, mint = min_temps.pop()
+> 
+>     # pop items from the forecast lists until gone, or end of current year
+>     first_of_next_year = datetime.date(fcast_start.year+1, 1, 1)
+>     while mint_date < first_of_next_year:
+>         if mint_date > target_date: # skip forecasts prior to current date
+>             maxt_date, maxt = max_temps.pop()
+>             manager.open('a')
+>             manager.updateTempGroup(mint_date, mint, maxt, ndfd.tag, forecast=True)
+>             manager.close()
+>             if first_date is None: first_date = mint_date
+>             last_date = mint_date
+>         # get mint for the next day in forecast
+>         try:
+>             mint_date, mint = min_temps.pop()
+>         except IndexError: # all days from forecast have be added
+>             break
+> 
+>     # forecast has data for target_year
+>     if first_date is not None:
+>         # update forecast time span in current year's file
+>         manager.open('a')
+>         manager.setForecastDates('temps.maxt', first_date, last_date)
+>         manager.setForecastDates('temps.mint', first_date, last_date)
+>         manager.setForecastDates('temps.provenance', first_date, last_date)
+>         manager.close()
+>         del manager
+> 
+>     # turn annoying numpy warnings back on
+>     warnings.resetwarnings()
+> 
+>     # at least one day in the next year
+>     if len(maxt_temps) > 0:
+>         mint_temps.insert(0, [mint_date, mint])
+>     return mint_temps, max_temps
+> 
+> # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+> 
+47a102
+> target_year = target_date.year
+85a141
+> fcast_start = None
+101c157
+<             if verbose: print '        "forecastTime" =', fcast_time
+---
+>             if verbose: print '    "forecastTime" =', fcast_time
+106c162
+<             if verbose: print '        forecast datetime =', fcast_time
+---
+>             if verbose: print '    forecast datetime =', fcast_time
+107a164
+>             print '    forecast date =', fcast_date
+114d170
+<                 print '        forecast date =', fcast_date
+115a172
+>                 if fcast_start is None: fcast_start = fcast_date
+119,138c176
+<     temps[temp_var] = tuple(sorted(daily, key=lambda x: x[0]))
+< 
+< #print '\n\n', temps['mint']
+< #print '\n\n', temps['maxt']
+< 
+< target_year = fcast_date.year
+< manager = \
+< factory.getSourceFileManager(source, target_year, region, 'temps', mode='a')
+< print '\nsaving forecast to', manager.filepath
+< 
+< max_temps = temps['maxt']
+< min_temps = temps['mint']
+< 
+< for indx, data in enumerate(min_temps):
+<     mint_date, mint = data
+<     if mint_date > target_date:
+<         maxt_date, maxt = max_temps[indx]
+<         manager.open('a')
+<         manager.updateTempGroup(mint_date, mint, maxt, ndfd.tag, forecast=True)
+<         manager.close()
+---
+>     temps[temp_var] = daily
+142a181,192
+> # bad forecast file, no future dates
+> if fcast_start is None:
+>     print "Forecast contains no data beyond last obs date", last_obs_date
+>     os._exit(99)
+> 
+> # forecast at least partialy in the current year
+> if fcast_start.year == target_year:
+>     min_temps, max_temps = updateForecast(temps['mint'], temps['maxt'], fcast_start,
+>                                           target_year, source, region)
+> else:
+>     min_temps = temps['mint'] 
+>     max_temps = temps['maxt']
+144,152c194,215
+< # update forecast time span
+< first_date = min_temps[0][0]
+< last_date = min_temps[-1][0]
+< manager.open('a')
+< manager.setForecastDates('temps.maxt', first_date, last_date)
+< manager.setForecastDates('temps.mint', first_date, last_date)
+< manager.setForecastDates('temps.provenance', first_date, last_date)
+< manager.close()
+< del manager
+---
+> if len(mint_temps) > 0:
+>     manager = factory.getSourceFileManager(source, target_year, region,
+>                                            'temps', mode='a')
+>     if manager.datasetHasAttr('temps.maxt', 'fcast_start'):
+>         manager.deleteDatasetAttribute('temps.maxt', 'fcast_start')
+>     if manager.datasetHasAttr('temps.maxt', 'fcast_end'):
+>         manager.deleteDatasetAttribute('temps.maxt', 'fcast_end')
+>     if manager.datasetHasAttr('temps.mint', 'fcast_start'):
+>         manager.deleteDatasetAttribute('temps.mint', 'fcast_start')
+>     if manager.datasetHasAttr('temps.mint', 'fcast_end'):
+>         manager.deleteDatasetAttribute('temps.mint', 'fcast_end')
+>     if manager.datasetHasAttr('temps.provenance', 'fcast_start'):
+>         manager.deleteDatasetAttribute('temps.provenance', 'fcast_start')
+>     if manager.datasetHasAttr('temps.provenance', 'fcast_end'):
+>         manager.deleteDatasetAttribute('temps.provenance', 'fcast_end')
+>     manager.close()
+>     del manager
+> 
+>     fcast_start = min_temps[0][0]
+>     target_year = fcast_start.year
+>     min_temps, max_temps = \
+>         updateForecast(min_temps, max_temps, fcast_start, target_year, source, region)

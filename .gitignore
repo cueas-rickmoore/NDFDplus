@@ -1,0 +1,11 @@
+.DS_Store
+diff.txt
+*.log
+*.pyc
+*.pyo
+*.so
+*.o
+*.rev
+*.swp
+*.*~
+atmosci/acis/data
